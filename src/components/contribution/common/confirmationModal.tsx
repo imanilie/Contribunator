@@ -1,5 +1,7 @@
-import { ConfigWithContribution } from "@/types";
-import { SubmitState } from "../formClient";
+import type { Body, ConfigWithContribution } from "@/types";
+import type { Dispatch, SetStateAction } from "react";
+
+import { SubmitState } from "@/types";
 import { HiCheck, HiX } from "react-icons/hi";
 import { destructureMeta } from "@/lib/helpers/destructureMeta";
 import { decorateFormData } from "@/lib/helpers/decorateFormData";
@@ -7,20 +9,24 @@ import Report from "./report";
 
 type Props = {
   state: SubmitState;
-  setState: (a: any) => void;
+  setState: Dispatch<SetStateAction<SubmitState>>;
   config: ConfigWithContribution;
 };
 
-function ConfirmationModalInner({ state: { data }, config }: Props) {
-  console.log("rendering");
-  const destructured = destructureMeta(data);
-  const { formData } = decorateFormData({ ...destructured, config });
-  return <Report formData={formData} />;
+function ConfirmationModalInner({
+  body,
+  config,
+}: {
+  body: Body;
+  config: ConfigWithContribution;
+}) {
+  const destructured = destructureMeta(body);
+  const { decorated } = decorateFormData({ ...destructured, config });
+  return <Report decorated={decorated} />;
 }
 
 export default function ConfirmationModal(props: Props) {
   const { state, setState } = props;
-  // check if we need to render and don't do any hard work if not
   return (
     <dialog
       id="confirmation_modal"
@@ -29,10 +35,10 @@ export default function ConfirmationModal(props: Props) {
     >
       <form method="dialog" className="modal-box text-left max-w-xl space-y-6">
         <div className="text-lg font-bold text-center">Confirm Pull Requst</div>
-        {state.data && <ConfirmationModalInner {...props} />}
+        {state.body && (
+          <ConfirmationModalInner body={state.body} config={props.config} />
+        )}
         <div className="flex space-x-2 pt-2">
-          {/* if there is a button in form, it will close the modal */}
-          {/* {state.sb} */}
           <div className="flex-auto">
             <button className="btn">
               <HiX />
@@ -46,7 +52,7 @@ export default function ConfirmationModal(props: Props) {
               try {
                 const res = await fetch(`/api/contribute`, {
                   method: "POST",
-                  body: JSON.stringify(state.data),
+                  body: JSON.stringify(state.body),
                 });
                 const json = await res.json();
                 if (!res.ok) {

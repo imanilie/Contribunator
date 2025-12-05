@@ -76,12 +76,12 @@ const textFieldTest: Fields = {
   textUI: {
     type: "text",
     title: "Text with all UI options",
-    prefix: "Prefix",
+    prefix: ({ value }) => `Prefix ${value?.length || ""}`.trim(),
     clear: true,
     info: "Info here",
     infoLink: "https://example.com",
     placeholder: "Placeholder",
-    iframe: ({ field }) => field.value,
+    iframe: (value) => value,
     suggestions: [
       {
         hasNo: "https://",

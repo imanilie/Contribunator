@@ -1,19 +1,49 @@
 import { AuthType, ConfigWithContribution } from "./config";
 import { Field } from "./form";
+import { GithubProfile } from "next-auth/providers/github";
 
-export type Authorized = {
-  type: AuthType;
-  [key: string]: any;
+export type AuthorizedGithub = {
+  type: "github";
+  token: GithubProfile;
 };
 
-// todo
-export type Data = any;
-export type Body = any;
-// a merged version of the data and the form
+export type AuthorizedCaptcha = {
+  type: "captcha";
+};
 
-export type FormDataItem =
+export type AuthorizedApi = {
+  type: "api";
+  user: string;
+};
+
+export type AuthorizedAnon = {
+  type: "anon";
+};
+
+export type Authorized =
+  | AuthorizedGithub
+  | AuthorizedCaptcha
+  | AuthorizedApi
+  | AuthorizedAnon;
+
+export type Meta = {
+  authorization: AuthType;
+  repo: string;
+  contribution: string;
+  customTitle?: string;
+  customMessage?: string;
+  captcha?: string;
+};
+
+// TODO figure out how to do this without any
+// export type DataItem = Data | Data[] | string | string[] | number | number[];
+export type Data = any; // { [key: string]: DataItem; };
+
+export type Body = Meta & Data;
+
+export type DecoratedDataItem =
   | {
-      data?: any;
+      data?: Data;
       field?: Field;
       name?: string;
       path?: string;
@@ -22,19 +52,10 @@ export type FormDataItem =
       filePath?: string;
       markdown?: string;
     }
-  | { [key: string]: FormDataItem | FormDataItem[] };
+  | { [key: string]: DecoratedDataItem | DecoratedDataItem[] };
 
-export type FormData = {
-  [key: string]: FormDataItem;
-};
-
-export type Meta = {
-  authorization: AuthType[];
-  customTitle?: string;
-  customMessage?: string;
-  captcha?: string;
-  repo: string;
-  contribution: string;
+export type DecoratedData = {
+  [key: string]: DecoratedDataItem;
 };
 
 export type FetchData = {
@@ -61,7 +82,7 @@ export type FetchedFile = {
   parsed?: any;
 };
 export type FetchedFiles = { [name: string]: FetchedFile };
-export type FetchedData = any;
+export type FetchedData = { [name: string]: any };
 
 export type ExtractedImagesFlat = {
   [key: string]: string;
@@ -77,7 +98,7 @@ export type PrMetadata = (props: {
   meta: Meta;
   data: Data;
   config: ConfigWithContribution;
-  formData: FormData;
+  decorated: DecoratedData;
   images?: ExtractedImagesFlat;
   files?: FetchedFiles;
   timestamp?: string;
@@ -100,7 +121,7 @@ export type CommitInputs = {
   images: ExtractedImagesFlat;
   title: string;
   message: string;
-  formData: FormData;
+  decorated: DecoratedData;
   branch: string;
   config: ConfigWithContribution;
   meta: Meta;
@@ -120,9 +141,43 @@ export type CommitOutputs = {
     [key: string]: string;
   };
   json?: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
   yaml?: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
+};
+
+export type GithubCreateCommit = {
+  base: string;
+  repo: string;
+  owner: string;
+  branch: string;
+  createBranch: boolean;
+  author?: {
+    name: string;
+    email: string;
+  };
+  changes: [
+    {
+      message: string;
+      files: {
+        [key: string]: string;
+      };
+    }
+  ];
+};
+
+export type GithubCreatePR = {
+  base: string;
+  title: string;
+  repo: string;
+  head: string;
+  owner: string;
+  body: string;
+};
+
+export type E2ETestResponse = {
+  pr: GithubCreatePR;
+  commit: GithubCreateCommit;
 };

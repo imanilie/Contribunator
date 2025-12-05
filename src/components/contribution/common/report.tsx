@@ -1,6 +1,6 @@
-import { FormData, FormDataItem } from "@/types";
+import { DecoratedData, DecoratedDataItem } from "@/types";
 
-function ReportCell({ fields }: { fields: FormDataItem }) {
+function ReportCell({ fields }: { fields: DecoratedDataItem }) {
   return (
     <>
       {Object.values(fields).map((item, index) => {
@@ -18,7 +18,9 @@ function ReportCell({ fields }: { fields: FormDataItem }) {
                   {item.data.alt && <div>{item.data.alt}</div>}
                 </div>
               ) : (
-                <div>{item.markdown || item.data}</div>
+                <div className="whitespace-pre-wrap">
+                  {item.markdown || item.data}
+                </div>
               )}
             </div>
           );
@@ -29,6 +31,6 @@ function ReportCell({ fields }: { fields: FormDataItem }) {
   );
 }
 
-export default function Report({ formData }: { formData: FormData }) {
-  return <ReportCell fields={formData} />;
+export default function Report({ decorated }: { decorated: DecoratedData }) {
+  return <ReportCell fields={decorated} />;
 }

@@ -9,6 +9,9 @@ import type {
   ConfigWithContribution,
   TransformedPR,
   Authorized,
+  E2ETestResponse,
+  GithubCreateCommit,
+  GithubCreatePR,
 } from "@/types";
 
 import { e2e, githubApp } from "@/lib/env.server";
@@ -43,16 +46,26 @@ export default async function submitPullRequest({
   transformed: { files, title, branch, message },
 }: CreatePullRequestInputs): Promise<{
   pr: CreatePullRequestOutputs;
-  test: any; // for testing
+  test?: E2ETestResponse;
 }> {
   const githubUser = authorized.type === "github" ? authorized.token : null;
   // prevent branch name creation conflicts
   const uid = e2e ? "" : `-${crypto.randomBytes(3).toString("hex")}`;
-  const commit = {
+
+  // get the base if it's not set
+  const base =
+    repo.base ||
+    (
+      await octokit.rest.repos.get({
+        owner: repo.owner,
+        repo: repo.name,
+      })
+    ).data.default_branch;
+
+  const commit: GithubCreateCommit = {
+    base,
     repo: repo.name,
     owner: repo.owner,
-    base: repo.base,
-    forkFromBaseBranch: !repo.base,
     branch: `${repo.branchPrefix}${branch}${uid}`,
     createBranch: true,
     ...(githubUser && {
@@ -70,17 +83,15 @@ export default async function submitPullRequest({
     ],
   };
 
-  log.info({ commit });
-  const { commits, base } = await octokit.rest.repos.createOrUpdateFiles(
-    commit
-  );
+  log.info("commit", { commit });
+  const { commits } = await octokit.rest.repos.createOrUpdateFiles(commit);
 
   // get the commit sha and replace it in the PR body
   // so that images can be displayed
   const prMessage = message.split(COMMIT_REPLACE_SHA).join(commits[0].sha);
 
-  const pr = {
-    base: base || repo.base,
+  const pr: GithubCreatePR = {
+    base,
     title,
     repo: repo.name,
     head: commit.branch,
@@ -88,7 +99,7 @@ export default async function submitPullRequest({
     body: `${prMessage}${repo.prPostfix}`,
   };
 
-  log.info({ pr });
+  log.info("pr", { pr });
   const { data } = await octokit.rest.pulls.create(pr);
 
   // add tags and reviwer status

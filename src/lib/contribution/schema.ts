@@ -1,4 +1,5 @@
 import { ObjectSchema, array, object, string } from "yup";
+import startCase from "lodash/startCase";
 
 import type {
   Choice,
@@ -27,7 +28,8 @@ export default function generateSchema(
     const schema: any = {};
 
     Object.entries(fields).forEach(([name, field]) => {
-      const title = field.title || name;
+      const title =
+        (typeof field.title !== "function" && field.title) || startCase(name);
 
       const { type, validation = {} } = field;
 
@@ -38,6 +40,7 @@ export default function generateSchema(
       // skip generation if yup is passed
       if (validation.yup) {
         schema[name] = validation.yup;
+        schema[name] = schema[name].label(title);
         return;
       }
 
@@ -96,10 +99,10 @@ export default function generateSchema(
             if (!data) {
               return true;
             }
+            // if it's a jpeg or png
             if (
-              data.match(
-                /^data:image\/(?:png|jpeg);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/
-              )
+              data.startsWith("data:image/jpeg") ||
+              data.startsWith("data:image/png")
             ) {
               return true;
             }
@@ -147,7 +150,7 @@ export default function generateSchema(
 
       // add label to fields
       if (field.title) {
-        schema[name] = schema[name].label(field.title);
+        schema[name] = schema[name].label(title);
       }
 
       Object.entries(validation).forEach(([key, value]) => {

@@ -2,28 +2,13 @@
 
 Below are the upcoming features and improvements.
 
-### ETC Cleanup
-
-- Remove base configs, they are generated now
-- Test video with no tags
-- Addition of generic uploads; media, animation, GIFs, video via LFS
-- i18n support (ETC)
-- Merge form config like twitter for all contributions, standardize contributions
-- Add contributor name to prs
-- Move ETC-only contributions/tests elsewhere?
-- Refactor to use images api
-- unset description if empty
-
 ### Code Quality / Polish
 
-- test it works with `field`, `fields` fields and other fuckery
 - Better typing in decorated form data
 - Cleanup, replace all `any` types
-- Refactor tests
-- Convert the has/hasNo back to regex now we don't need to serialize?
-- Separate serer and client side code? (commit, `fetchOnServer`, etc.)
-- Modularize field types
-- Collapse dropdown if sub-item not selected
+- Allow users to handle 404s
+- multiple links in one PR
+- Fix unwrapDynamic, formContext types
 
 ### Update Docs
 
@@ -32,27 +17,28 @@ Below are the upcoming features and improvements.
 - Add a note about enabled delete branches
 - update need to "Request user authorization (OAuth) during installation" (we dont)
 - don't need to opt-out of refresh user access token
+- Check TODOs, Convert TODOs into issues in repo
 
-### Tweets
+### Next Features
 
-- Disable Quote, Meida, etc.
 - Poll Tweets
 - Thread Tweets
-
-### General Features
-
+- Disable Quote, Meida, tweet.
+- (Pending vercel blob) Addition of generic uploads; media, animation, GIFs, video via LFS?
+- merge trigger actions (delete the merged branch)
 - Option to disable customTitle/message
 - Contribution-specific labels
 - Code, Radios, Checkbox, Number (range)
-- Required ALT image field
+- Required ALT image field option
 - Checkbox to Star Repo `starRepoForAuthenticatedUser`
 - Option to add merge schedule date
 - field specific image paths
 
 ## Contribunator v1
 
+- Modularize field types
+- Refactor tests to have individual sub-tests
 - OG Image
-- button for github repos to generate a form screenshot
 - Dynamic loading of configs from github via yaml
 - Themes picker, daisy-ui compatible, and rounded etc.
 - handle repo owner/repo/name conflicts, "slug" attribute?
@@ -60,7 +46,17 @@ Below are the upcoming features and improvements.
 - Contribution-specific authorization
 - Allow multiple repos, set up a public contribunator instance, with config updates
 - Single repo layout
+
+## Low Priority
+
+- Nicer dropdown for long lists Collapse dropdown if sub-item not selected
+
+## Icebucket
+
 - Form builder
+- button for github repos to generate a form screenshot
+- Add contributor name to prs (etc)
+- Separate serer and client side code? (commit, `fetchOnServer`, etc.)
 
 ## Judgement Day
 
