@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 
 import buildConfig from "@/lib/helpers/buildConfig";
 import testConfig from "@/../test/configs/core.test.config";
+import formTest from "@/../test/fixtures/form.fixture";
 
 test("landing page and contribution list", async ({ page }) => {
   const { repos } = await buildConfig(await testConfig());
@@ -43,3 +44,32 @@ test("landing page and contribution list", async ({ page }) => {
     `/contribute/${first.repo.name}/${first.contribution.name}`
   );
 });
+
+test("non-existent contribution shows not found page", async ({ page }) => {
+  await page.goto("/contribute/_E2E_test/nonexistent_contribution");
+  await expect(page.getByText("Page Not Found")).toBeVisible();
+  await expect(
+    page.getByText("Sorry, the resource you are looking for does not exist.")
+  ).toBeVisible();
+});
+
+test("non-existent repo shows not found page", async ({ page }) => {
+  await page.goto("/contribute/nonexistent_repo/some_contribution");
+  await expect(page.getByText("Page Not Found")).toBeVisible();
+  await expect(
+    page.getByText("Sorry, the resource you are looking for does not exist.")
+  ).toBeVisible();
+});
+
+const hiddenContributionTest = formTest({
+  repo: "_E2E_test",
+  contribution: "api",
+});
+
+hiddenContributionTest(
+  "hidden contribution is accessible via direct url",
+  async ({ f }) => {
+    // The 'api' contribution in _E2E_test is hidden but should still be reachable
+    await f.hasText("A Generic Contribution");
+  }
+);

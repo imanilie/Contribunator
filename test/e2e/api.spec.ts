@@ -195,3 +195,29 @@ test("rejects bad API key usage", async ({ request }) => {
   const json = await res.json();
   expect(json).toEqual({ error: "Unauthorized" });
 });
+
+test("rejects invalid image data", async ({ a }) => {
+  expect(
+    await a.post({
+      authorization: "anon",
+      repo: "_E2E_tweets",
+      contribution: "tweet",
+      text: "My test tweet",
+      media: [{ data: "data:image/gif;base64,abc", type: "jpeg" }],
+    })
+  ).toEqual({ error: "Invalid image data" });
+});
+
+test("rejects image still in crop mode", async ({ a }) => {
+  expect(
+    await a.post({
+      authorization: "anon",
+      repo: "_E2E_tweets",
+      contribution: "tweet",
+      text: "My test tweet",
+      media: [
+        { data: "data:image/jpeg;base64,abc", type: "jpeg", editing: "true" },
+      ],
+    })
+  ).toEqual({ error: "Please complete crop selection" });
+});
