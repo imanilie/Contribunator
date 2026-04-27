@@ -216,6 +216,8 @@ test("rejects image still in crop mode", async ({ a }) => {
       contribution: "tweet",
       text: "My test tweet",
       media: [
+        // The schema defines 'editing' as string(); any non-empty string signals
+        // an in-progress crop and triggers the validation error.
         { data: "data:image/jpeg;base64,abc", type: "jpeg", editing: "true" },
       ],
     })
