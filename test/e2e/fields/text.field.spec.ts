@@ -3,7 +3,13 @@ import formTest from "@/../test/fixtures/form.fixture";
 
 const test = formTest({ repo: "_E2E_fields", contribution: "text" });
 
-// TODO add test for Info field and Yup schema
+// TODO add test for Yup schema
+
+test("info field is rendered", async ({ f }) => {
+  // The 'infoText' field has type "info" with title "Text Fields"
+  // It should be visible on the form but not be an input
+  await f.hasText("Text Fields");
+});
 
 test("text field", async ({ f }) => {
   // basic

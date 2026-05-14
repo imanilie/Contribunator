@@ -74,6 +74,38 @@ There is no text in the tweet.${f.FOOTER}`,
 
 // TODO test overrides, tags...
 
+test("tweet tags populate text", async ({ f }) => {
+  const textField = f.getByLabel("Tweet Text");
+  // The test config overrides tags with ["test", "tags"]
+  await expect(textField.getByText("test")).toBeVisible();
+  await expect(textField.getByText("tags")).toBeVisible();
+  // Clicking a tag should append it to the textarea
+  await textField.getByText("test").click();
+  await textField.getByText("tags").click();
+  await expect(textField.locator("textarea")).toHaveValue("test tags ");
+});
+
+test("tweet text invalid with dashes", async ({ f }) => {
+  await f.setText("Tweet Text", "--- something invalid");
+  await f.cannotSubmit(["Do not include `---`"]);
+});
+
+test("tweet text too long", async ({ f }) => {
+  // Twitter's limit is 280 weighted characters; 281 'a's should exceed it
+  const longText = "a".repeat(281);
+  await f.setText("Tweet Text", longText);
+  await f.cannotSubmit(["Tweet is too long"]);
+});
+
+test("tweet reply with invalid url format", async ({ f }) => {
+  await f.clickButton("Quote Type", "Reply");
+  // A URL that does not match the twitter.com/x.com status pattern
+  await f.setText("Reply URL", "https://example.com/user/status/123");
+  await f.cannotSubmit([
+    "Must match format https://twitter.com/[user]/status/[id] or https://x.com/[user]/status/[id]",
+  ]);
+});
+
 test("tweet reply", async ({ f }) => {
   await f.clickButton("Quote Type", "Reply");
 
